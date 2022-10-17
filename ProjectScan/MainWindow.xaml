@@ -1,0 +1,27 @@
+﻿<Window x:Class="ProjectScan.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ProjectScan"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+	<Grid Margin="20,35,20,20">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="1*" />
+			<RowDefinition Height="1*" />
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="0.5*" />
+			<ColumnDefinition Width="0.5*" />
+		</Grid.ColumnDefinitions>
+		<StackPanel Orientation="Vertical">
+			<TextBlock>Hello, Coaran!</TextBlock>
+			<TextBlock>When you open this application, you should see a clock.</TextBlock>
+			<TextBlock>If you do not, let me know and I will help you get this working....</TextBlock>
+		</StackPanel>
+		<Grid Grid.Column="1">
+			<Label Height="148" FontSize="16" HorizontalAlignment="Right" Name="ClockView" VerticalAlignment="Top" FontFamily="Impact" />
+		</Grid>
+	</Grid>
+</Window>
