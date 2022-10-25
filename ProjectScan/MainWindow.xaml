@@ -5,23 +5,23 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ProjectScan"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Malware Scanner" Height="450" Width="800">
 	<Grid Margin="20,35,20,20">
-		<Grid.RowDefinitions>
-			<RowDefinition Height="1*" />
-			<RowDefinition Height="1*" />
-		</Grid.RowDefinitions>
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="0.5*" />
-			<ColumnDefinition Width="0.5*" />
-		</Grid.ColumnDefinitions>
-		<StackPanel Orientation="Vertical">
-			<TextBlock>Hello, Coaran!</TextBlock>
-			<TextBlock>When you open this application, you should see a clock.</TextBlock>
-			<TextBlock>If you do not, let me know and I will help you get this working....</TextBlock>
-		</StackPanel>
-		<Grid Grid.Column="1">
-			<Label Height="148" FontSize="16" HorizontalAlignment="Right" Name="ClockView" VerticalAlignment="Top" FontFamily="Impact" />
+		<!--File selection screen.-->
+		<Grid x:Name="SelectFile">
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
+				<WrapPanel HorizontalAlignment="Center" Margin="0,0,0,10">
+					<Button AllowDrop="True" Drop="FilePicker_Drop" PreviewDragOver="FilePicker_PreviewDragOver" Height="150" Width="500" x:Name="FilePicker" Click="ChooseFile">Choose File to Scan</Button>
+				</WrapPanel>
+			</StackPanel>
+		</Grid>
+		<!--Scanning in progress screen.-->
+		<Grid Visibility="Hidden" x:Name="ScanningInProgress">
+		</Grid>
+		<!--Scanning complete screen.-->
+		<Grid Visibility="Hidden" x:Name="ScanComplete">
+
 		</Grid>
 	</Grid>
+
 </Window>
