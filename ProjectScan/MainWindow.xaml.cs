@@ -62,6 +62,9 @@ namespace ProjectScan
 
         private static IViralTelemetryService Scanner { get; set; } = new ViralTelemetryService();
 
+        // Filepath of the file chosen by the user to be scanned.
+        private string filepath;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -90,6 +93,9 @@ namespace ProjectScan
                     ScanComplete.Visibility = Visibility.Hidden;
                     break;
                 case (ApplicationScreenState.ScanComplete):
+                    SelectFile.Visibility = Visibility.Hidden;
+                    ScanningInProgress.Visibility = Visibility.Hidden;
+                    ScanComplete.Visibility = Visibility.Visible;
                     break;
             }
         }
@@ -115,13 +121,15 @@ namespace ProjectScan
                 {
                     //Safety check: Attempt to locate the file on the system.
                     //It is possible that the file was deleted after the user opened the file dialogue.
-                    if (!System.IO.File.Exists(picker.FileName))
+                    if (!System.IO.File.Exists(this.filepath))
                     {
                         throw new FileNotFoundException();
                     }
 #if DEBUG
-                    Console.WriteLine(picker.FileName);
+                    Console.WriteLine(this.filepath);
 #endif
+                    // Set field that stores the scanned file's filepath.
+                    this.filepath = picker.FileName;
                     SetApplicationScreen(ApplicationScreenState.ScanningInProgress);
                     //TODO: Perform scanning logic here.
                 }
@@ -169,7 +177,11 @@ namespace ProjectScan
                     }
 #if DEBUG
                     Console.WriteLine(target);
+
 #endif
+                    
+                    // Set field that stores the filepath for later usage.
+                    this.filepath = target;
                     SetApplicationScreen(ApplicationScreenState.ScanningInProgress);
                     //TODO: Perform scanning logic here.
 
@@ -201,6 +213,42 @@ namespace ProjectScan
         private void FilePicker_PreviewDragOver(object sender, DragEventArgs e)
         {
             e.Handled = true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DeleteFile(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Throw error if file no longer at specified filepath.
+                if (!System.IO.File.Exists(this.filepath))
+                {
+                    throw new FileNotFoundException();
+                }
+
+                //Delete the scanned file.
+                System.IO.File.Delete(this.filepath);
+            }
+            catch
+            {
+                MessageBox.Show("This file can no longer be found.");
+            }
+
+        }
+
+        /// <summary>
+        /// Reset the application to the initial state.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ReturnToStart(object sender, RoutedEventArgs e)
+        {
+            //Reset screen to initial file selection state
+            SetApplicationScreen(ApplicationScreenState.SelectFile);
         }
     }
 }
