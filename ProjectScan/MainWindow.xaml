@@ -17,7 +17,16 @@
 		</Grid>
 		<!--Scanning in progress screen.-->
 		<Grid Visibility="Hidden" x:Name="ScanningInProgress">
-		</Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Vertical">
+                <Viewbox Stretch="Uniform" Height="50" Width="600" Margin="125" StretchDirection="DownOnly">
+                    <TextBlock x:Name="ScanningText" VerticalAlignment="Center" FontSize="20" FontFamily="Century Gothic"></TextBlock>
+                </Viewbox>
+            </StackPanel>
+            <ProgressBar x:Name="ProgBar" Minimum="0" Maximum="100" Value="13" Margin="76,200,76,200" IsIndeterminate="True" />
+        </Grid>
 		
 		
 		<!--Scanning complete screen.-->
