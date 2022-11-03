@@ -8,7 +8,7 @@
         Title="Malware Scanner" Height="450" Width="800">
 	<Grid Margin="20,35,20,20">
 		<!--File selection screen.-->
-		<Grid x:Name="SelectFile">
+		<Grid Visibility="Visible" x:Name="SelectFile">
 			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
 				<WrapPanel HorizontalAlignment="Center" Margin="0,0,0,10">
 					<Button AllowDrop="True" Drop="FilePicker_Drop" PreviewDragOver="FilePicker_PreviewDragOver" Height="150" Width="500" x:Name="FilePicker" Click="ChooseFile">Choose File to Scan</Button>
@@ -18,9 +18,34 @@
 		<!--Scanning in progress screen.-->
 		<Grid Visibility="Hidden" x:Name="ScanningInProgress">
 		</Grid>
+		
+		
 		<!--Scanning complete screen.-->
-		<Grid Visibility="Hidden" x:Name="ScanComplete">
+		<Grid Visibility="Hidden" x:Name="ScanComplete" >
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="1.5*" />
+				<RowDefinition Height="1*" />
+				<RowDefinition Height="1*" />
+				<RowDefinition Height="2*" />
+			</Grid.RowDefinitions>
+			
+				<!--Filename display-->
+				<TextBlock Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontSize="24" FontWeight="SemiBold">[Filename]</TextBlock>
+				<!--Diagnosis display-->
+				<TextBlock Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontSize="18">Diagnosis: ...</TextBlock>
+				<!--Confidence score display-->
+				<TextBlock Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontSize="18">Confidence score: ...</TextBlock>
 
+
+				<!--Delete the scanned file-->
+				<Button Margin="30, 15, 30, 30" Grid.Row="3" Grid.Column="0" FontSize="16" Click="DeleteFile">Remove File</Button>
+
+				<!--Return to file selection-->
+				<Button Margin="30, 15, 30, 30" Grid.Row="3" Grid.Column="1" FontSize="16" Click="ReturnToStart">Return to File Selection</Button>	
 		</Grid>
 	</Grid>
 
