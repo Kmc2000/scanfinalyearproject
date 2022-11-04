@@ -1,0 +1,15 @@
+C:\Users\Reef\source\repos\Scan Test Program\bin\Debug\net6.0\Scan Test Program.exe
+C:\Users\Reef\source\repos\Scan Test Program\bin\Debug\net6.0\Scan Test Program.deps.json
+C:\Users\Reef\source\repos\Scan Test Program\bin\Debug\net6.0\Scan Test Program.runtimeconfig.json
+C:\Users\Reef\source\repos\Scan Test Program\bin\Debug\net6.0\Scan Test Program.dll
+C:\Users\Reef\source\repos\Scan Test Program\bin\Debug\net6.0\Scan Test Program.pdb
+C:\Users\Reef\source\repos\Scan Test Program\obj\Debug\net6.0\Scan Test Program.csproj.AssemblyReference.cache
+C:\Users\Reef\source\repos\Scan Test Program\obj\Debug\net6.0\Scan Test Program.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Reef\source\repos\Scan Test Program\obj\Debug\net6.0\Scan Test Program.AssemblyInfoInputs.cache
+C:\Users\Reef\source\repos\Scan Test Program\obj\Debug\net6.0\Scan Test Program.AssemblyInfo.cs
+C:\Users\Reef\source\repos\Scan Test Program\obj\Debug\net6.0\Scan Test Program.csproj.CoreCompileInputs.cache
+C:\Users\Reef\source\repos\Scan Test Program\obj\Debug\net6.0\Scan Test Program.dll
+C:\Users\Reef\source\repos\Scan Test Program\obj\Debug\net6.0\refint\Scan Test Program.dll
+C:\Users\Reef\source\repos\Scan Test Program\obj\Debug\net6.0\Scan Test Program.pdb
+C:\Users\Reef\source\repos\Scan Test Program\obj\Debug\net6.0\Scan Test Program.genruntimeconfig.cache
+C:\Users\Reef\source\repos\Scan Test Program\obj\Debug\net6.0\ref\Scan Test Program.dll
