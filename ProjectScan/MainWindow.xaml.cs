@@ -115,8 +115,12 @@ namespace ProjectScan
             bool err = false;
             try
             {
+
                 OpenFileDialog picker = new();
                 //User confirmed file choice and did not cancel.
+                // Set field that stores the scanned file's filepath.
+                this.filepath = picker.FileName;
+
                 if (picker.ShowDialog() == true)
                 {
                     //Safety check: Attempt to locate the file on the system.
@@ -128,9 +132,9 @@ namespace ProjectScan
 #if DEBUG
                     Console.WriteLine(this.filepath);
 #endif
-                    // Set field that stores the scanned file's filepath.
-                    this.filepath = picker.FileName;
+
                     SetApplicationScreen(ApplicationScreenState.ScanningInProgress);
+                    ScanningText.Text = picker.SafeFileName + " is being scanned..."; // TODO: get filename from MainWindow.
                     //TODO: Perform scanning logic here.
                 }
             }
