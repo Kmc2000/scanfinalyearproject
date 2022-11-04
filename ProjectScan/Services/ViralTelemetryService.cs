@@ -51,8 +51,17 @@ namespace ProjectScan.Services
             this.Confidence = confidence;
             this.ErrorFlags = flags;
         }
-
+        /// <summary>
+        /// Builds a standard result hinting at an error.
+        /// </summary>
+        /// <param name="flags"></param>
+        /// <returns></returns>
         internal static ViralTelemetryResult ErrorResult(ViralTelemetryErrorFlags flags) => new ViralTelemetryResult(ViralTelemetryCategorisation.Unknown, -1.0m, flags);
+        /// <summary>
+        /// Returns a result signalling that the operation was OK.
+        /// </summary>
+        /// <returns></returns>
+        internal static ViralTelemetryResult OkResult() => new ViralTelemetryResult(ViralTelemetryCategorisation.Negative, 0.0m, ViralTelemetryErrorFlags.None);
 
     }
 

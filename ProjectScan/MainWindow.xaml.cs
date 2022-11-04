@@ -96,8 +96,34 @@ namespace ProjectScan
                     SelectFile.Visibility = Visibility.Hidden;
                     ScanningInProgress.Visibility = Visibility.Hidden;
                     ScanComplete.Visibility = Visibility.Visible;
+                    //Fill out the results...
+                    Diagnosis.Text = ScanningResult.Categorisation.ToString();
+                    Confidence.Text = $"Confidence: {ScanningResult.Confidence}";
                     break;
             }
+        }
+
+        List<IViralTelemetryService> DetectionEngines = new List<IViralTelemetryService>()
+        {
+            new SHA256HashTelemetryService()
+        };
+        public ViralTelemetryResult ScanningResult { get; set; }
+
+        private void Scan()
+        {
+            if (filepath == null || filepath.Length <= 0)
+            {
+                throw new InvalidOperationException();
+            }
+            foreach (IViralTelemetryService detectionEngine in DetectionEngines)
+            {
+                ScanningResult = detectionEngine.Scan(filepath, out ViralTelemetryErrorFlags flags);
+                if (ScanningResult.Categorisation != ViralTelemetryCategorisation.Negative)
+                {
+                    throw new NotImplementedException();
+                }
+            }
+            SetApplicationScreen(ApplicationScreenState.ScanComplete);
         }
 
         /// <summary>
@@ -117,12 +143,13 @@ namespace ProjectScan
             {
 
                 OpenFileDialog picker = new();
-                //User confirmed file choice and did not cancel.
-                // Set field that stores the scanned file's filepath.
-                this.filepath = picker.FileName;
+
 
                 if (picker.ShowDialog() == true)
                 {
+                    //User confirmed file choice and did not cancel.
+                    // Set field that stores the scanned file's filepath.
+                    this.filepath = picker.FileName;
                     //Safety check: Attempt to locate the file on the system.
                     //It is possible that the file was deleted after the user opened the file dialogue.
                     if (!System.IO.File.Exists(this.filepath))
@@ -136,6 +163,7 @@ namespace ProjectScan
                     SetApplicationScreen(ApplicationScreenState.ScanningInProgress);
                     ScanningText.Text = picker.SafeFileName + " is being scanned..."; // TODO: get filename from MainWindow.
                     //TODO: Perform scanning logic here.
+                    Scan();
                 }
             }
             catch (FileNotFoundException)
