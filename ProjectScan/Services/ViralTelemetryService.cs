@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using libyaraNET;
 
 namespace ProjectScan.Services
 {
@@ -85,10 +86,36 @@ namespace ProjectScan.Services
             flags = ViralTelemetryErrorFlags.None;
             try
             {
-                using (FileStream fs = new(FileName, FileMode.Open, FileAccess.Read))
+                using (var ctx = new YaraContext())
                 {
-                    //TODO: Perform viral scanning
-                    throw new NotImplementedException();
+                    Rules rules= null;
+
+                    try
+                    {
+                        // Rules and Compiler objects must be disposed.
+                        using (var compiler = new Compiler())
+                        {
+                            // Temporarily loading files from project directory until it's moved into sqlite database.
+                            string dir = System.IO.Directory.GetCurrentDirectory().Replace("\\bin\\Debug\\net6.0-windows", "");
+                            foreach (string file in Directory.EnumerateFiles(dir + "\\Rules", "*.yar", SearchOption.AllDirectories))
+                            {
+                                compiler.AddRuleFile(file);
+                            }
+                           rules = compiler.GetRules();
+                        }
+
+                        // Scanner and ScanResults do not need to be disposed.
+                        var scanner = new Scanner();
+                        var results = scanner.ScanFile(FileName, rules);
+
+                        var categorisation = results.Count > 0 ? ViralTelemetryCategorisation.Malware : ViralTelemetryCategorisation.Negative;
+                        return new ViralTelemetryResult(categorisation, 1, flags);
+                    }
+                    finally
+                    {
+                        // Rules and Compiler objects must be disposed.
+                        if (rules != null) rules.Dispose();
+                    }
                 }
             }
             catch (IOException)

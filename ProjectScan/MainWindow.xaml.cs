@@ -96,16 +96,14 @@ namespace ProjectScan
                     SelectFile.Visibility = Visibility.Hidden;
                     ScanningInProgress.Visibility = Visibility.Hidden;
                     ScanComplete.Visibility = Visibility.Visible;
-                    //Fill out the results...
-                    Diagnosis.Text = ScanningResult.Categorisation.ToString();
-                    Confidence.Text = $"Confidence: {ScanningResult.Confidence}";
                     break;
             }
         }
 
         List<IViralTelemetryService> DetectionEngines = new List<IViralTelemetryService>()
         {
-            new SHA256HashTelemetryService()
+            new SHA256HashTelemetryService(),
+            new ViralTelemetryService()
         };
         public ViralTelemetryResult ScanningResult { get; set; }
 
@@ -118,9 +116,10 @@ namespace ProjectScan
             foreach (IViralTelemetryService detectionEngine in DetectionEngines)
             {
                 ScanningResult = detectionEngine.Scan(filepath, out ViralTelemetryErrorFlags flags);
-                if (ScanningResult.Categorisation != ViralTelemetryCategorisation.Negative)
+                if (ScanningResult.Categorisation == ViralTelemetryCategorisation.Malware)
                 {
-                    throw new NotImplementedException();
+                    SetResultsUI(ScanningResult);
+                    break;
                 }
             }
             SetApplicationScreen(ApplicationScreenState.ScanComplete);
@@ -281,6 +280,13 @@ namespace ProjectScan
         {
             //Reset screen to initial file selection state
             SetApplicationScreen(ApplicationScreenState.SelectFile);
+        }
+
+        private void SetResultsUI(ViralTelemetryResult result)
+        {
+            filenameText.Text = "Filename: " + this.filepath.Split("\\")[^1];
+            diagnosisText.Text = "Category: " + result.Categorisation.ToString();
+            confidenceText.Text = "Confidence score: " + (result.Confidence * 100).ToString() +"%";
         }
     }
 }
