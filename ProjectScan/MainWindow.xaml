@@ -45,9 +45,9 @@
 				<!--Filename display-->
 				<TextBlock Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontSize="24" FontWeight="SemiBold">[Filename]</TextBlock>
 				<!--Diagnosis display-->
-				<TextBlock Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontSize="18">Diagnosis: ...</TextBlock>
+				<TextBlock Grid.Row="1" Grid.ColumnSpan="2" x:Name="Diagnosis"  HorizontalAlignment="Center" FontSize="18">Diagnosis: ...</TextBlock>
 				<!--Confidence score display-->
-				<TextBlock Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontSize="18">Confidence score: ...</TextBlock>
+				<TextBlock Grid.Row="2" Grid.ColumnSpan="2" x:Name="Confidence" HorizontalAlignment="Center" FontSize="18">Confidence score: ...</TextBlock>
 
 
 				<!--Delete the scanned file-->
