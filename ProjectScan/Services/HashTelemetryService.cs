@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -56,7 +57,6 @@ namespace ProjectScan.Services
         #region DUMMY_CODE
         byte[] Example = System.Text.Encoding.UTF8.GetBytes("Hello, world!");
 
-        List<byte[]> ExampleDatabase = new();
         #endregion
         /// <summary>
         /// The comparison engine which we'll be using to compare the hashes of the two files.
@@ -73,23 +73,25 @@ namespace ProjectScan.Services
                     using (SHA256 sha256Hash = SHA256.Create())
                     {
                         byte[] fileHash = sha256Hash.ComputeHash(fs);
-                        CancellationTokenSource src = new();
                         
                         ViralTelemetryResult result = ViralTelemetryResult.OkResult();
-                        // Use ParallelOptions instance to store the CancellationToken
-                        ParallelOptions po = new ParallelOptions();
-                        po.CancellationToken = src.Token;
-                        po.MaxDegreeOfParallelism = System.Environment.ProcessorCount;
-                        //TODO: Example DB access logic.. 
                         try
                         {
-                            Parallel.ForEach(ExampleDatabase, po, hash =>
-                            {
-                                if (Instance.Compare(fileHash, hash)){
-                                    src.Cancel();
-                                    result = new(ViralTelemetryCategorisation.Malware, 1.0m, ViralTelemetryErrorFlags.None);
+                            //Stream all known bad hashes from the DB.
+                            using (var ctx = new MalwareScannerContext()) {
+
+                                foreach(var hash in ctx.KnownBadHashes)
+                                {
+                                    //And compare the file's hash value to the known bad hash.
+                                    if (Instance.Compare(fileHash, hash.MalwareHash))
+                                    {
+                                        result = new(hash.Categorisation, 1.0m, ViralTelemetryErrorFlags.None);
+                                        break;
+                                    }
                                 }
-                            });
+                            }
+
+
                         }
                         catch (OperationCanceledException)
                         {
