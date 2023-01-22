@@ -103,6 +103,7 @@ namespace ProjectScan
         List<IViralTelemetryService> DetectionEngines = new List<IViralTelemetryService>()
         {
             new SHA256HashTelemetryService(),
+            new YaraTelemetryService(),
             new ViralTelemetryService()
         };
         public ViralTelemetryResult ScanningResult { get; set; }
@@ -284,9 +285,9 @@ namespace ProjectScan
 
         private void SetResultsUI(ViralTelemetryResult result)
         {
-            filenameText.Text = "Filename: " + this.filepath.Split("\\")[^1];
-            diagnosisText.Text = "Category: " + result.Categorisation.ToString();
-            confidenceText.Text = "Confidence score: " + (result.Confidence * 100).ToString() +"%";
+            filenameText.Text = $"Filename: {this.filepath.Split("\\")[^1]}";
+            diagnosisText.Text = $"Category: {result.Categorisation}";
+            confidenceText.Text = $"Confidence score: {(result.Confidence * 100).ToString() + "%"}";
         }
     }
 }

@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using libyaraNET;
 
 namespace ProjectScan.Services
 {
@@ -37,7 +36,8 @@ namespace ProjectScan.Services
         None=0x0,
         FileAccessError=0x1,
         Unauthorised=0x2,
-        GenericError=0x3
+        GenericError=0x3,
+        YaraCompilationError=0x4
     }
 
     public struct ViralTelemetryResult
@@ -86,36 +86,10 @@ namespace ProjectScan.Services
             flags = ViralTelemetryErrorFlags.None;
             try
             {
-                using (var ctx = new YaraContext())
+                using (FileStream fs = new(FileName, FileMode.Open, FileAccess.Read))
                 {
-                    Rules rules= null;
-
-                    try
-                    {
-                        // Rules and Compiler objects must be disposed.
-                        using (var compiler = new Compiler())
-                        {
-                            // Temporarily loading files from project directory until it's moved into sqlite database.
-                            string dir = System.IO.Directory.GetCurrentDirectory().Replace("\\bin\\Debug\\net6.0-windows", "");
-                            foreach (string file in Directory.EnumerateFiles(dir + "\\Rules", "*.yar", SearchOption.AllDirectories))
-                            {
-                                compiler.AddRuleFile(file);
-                            }
-                           rules = compiler.GetRules();
-                        }
-
-                        // Scanner and ScanResults do not need to be disposed.
-                        var scanner = new Scanner();
-                        var results = scanner.ScanFile(FileName, rules);
-
-                        var categorisation = results.Count > 0 ? ViralTelemetryCategorisation.Malware : ViralTelemetryCategorisation.Negative;
-                        return new ViralTelemetryResult(categorisation, 1, flags);
-                    }
-                    finally
-                    {
-                        // Rules and Compiler objects must be disposed.
-                        if (rules != null) rules.Dispose();
-                    }
+                    //TODO: Perform viral scanning
+                    throw new NotImplementedException();
                 }
             }
             catch (IOException)
