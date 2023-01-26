@@ -103,8 +103,7 @@ namespace ProjectScan
         List<IViralTelemetryService> DetectionEngines = new List<IViralTelemetryService>()
         {
             new SHA256HashTelemetryService(),
-            new YaraTelemetryService(),
-            new ViralTelemetryService()
+            new YaraTelemetryService()
         };
         public ViralTelemetryResult ScanningResult { get; set; }
 
@@ -117,7 +116,7 @@ namespace ProjectScan
             foreach (IViralTelemetryService detectionEngine in DetectionEngines)
             {
                 ScanningResult = detectionEngine.Scan(filepath, out ViralTelemetryErrorFlags flags);
-                if (ScanningResult.Categorisation == ViralTelemetryCategorisation.Malware)
+                if (ScanningResult.Categorisation != ViralTelemetryCategorisation.Negative)
                 {
                     SetResultsUI(ScanningResult);
                     break;
