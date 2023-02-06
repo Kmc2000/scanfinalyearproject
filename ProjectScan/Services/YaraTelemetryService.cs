@@ -20,7 +20,7 @@ namespace ProjectScan.Services
                 {
            
                     // Temporarily loading files from project directory until it's moved into sqlite database.
-                    string dir = System.IO.Directory.GetCurrentDirectory().Replace("\\bin\\Debug\\net6.0-windows", "");
+                    string dir = Directory.GetCurrentDirectory().Replace("\\bin\\Debug\\net6.0-windows", "");
                     foreach (string file in Directory.EnumerateFiles(dir + "\\Rules", "*.yar", SearchOption.AllDirectories))
                     {
                         compiler.AddRuleFile(file);
