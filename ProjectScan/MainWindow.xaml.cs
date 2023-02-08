@@ -39,7 +39,11 @@ namespace ProjectScan
         /// <summary>
         /// The scan is complete. Results are being shown to the user.
         /// </summary>
-        ScanComplete=0x3
+        ScanComplete=0x3,
+        /// <summary>
+        /// A fatal error occurred, from which we cannot recover.
+        /// </summary>
+        FatalError=0x4
     }
 
 
@@ -69,7 +73,28 @@ namespace ProjectScan
         {
             InitializeComponent();
             ButtonDefaultColour = FilePicker.Background;
+            using (var ctx = new MalwareScannerContext())
+            {
+                if(ctx.KnownBadHashes.Count() <= 0)
+                {
+                    FatalException("Database contains no hashes.", FaultCode.DatabaseError);
+                }
+                //TODO: CRC / self integrity checks of database.
+            }
             //tick = new(ClockView, this);
+        }
+
+        public enum FaultCode
+        {
+            None=0x0,
+            DatabaseError=0x1
+        }
+
+        public void FatalException(string reason, FaultCode code)
+        {
+            ErrorString.Text = $"An error has occurred: {reason} (error code {(int)code})";
+            SetApplicationScreen(ApplicationScreenState.FatalError);
+
         }
 
         /// <summary>
@@ -82,6 +107,13 @@ namespace ProjectScan
             this.state = _state;
             switch (state)
             {
+                case (ApplicationScreenState.FatalError):
+                    ErrorDisplay.Visibility = Visibility.Visible;
+                    SelectFile.Visibility = Visibility.Hidden;
+                    ScanningInProgress.Visibility = Visibility.Hidden;
+                    ScanComplete.Visibility = Visibility.Hidden;
+                    break;
+
                 case (ApplicationScreenState.SelectFile):
                     SelectFile.Visibility = Visibility.Visible;
                     ScanningInProgress.Visibility = Visibility.Hidden;

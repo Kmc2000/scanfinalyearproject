@@ -15,6 +15,13 @@
 				</WrapPanel>
 			</StackPanel>
 		</Grid>
+		<Grid Background="Magenta" Visibility="Hidden" x:Name="ErrorDisplay">
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
+				<WrapPanel HorizontalAlignment="Center" Margin="0,0,0,10">
+					<TextBlock x:Name="ErrorString" VerticalAlignment="Center" FontSize="20" FontFamily="Century Gothic"></TextBlock>
+				</WrapPanel>
+			</StackPanel>
+		</Grid>
 		<!--Scanning in progress screen.-->
 		<Grid Visibility="Hidden" x:Name="ScanningInProgress">
             <Grid.ColumnDefinitions>
