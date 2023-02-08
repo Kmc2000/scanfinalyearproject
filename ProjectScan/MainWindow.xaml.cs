@@ -276,11 +276,10 @@ namespace ProjectScan
                     Console.WriteLine(target);
 
 #endif
-                    
-                    // Set field that stores the filepath for later usage.
                     this.filepath = target;
                     SetApplicationScreen(ApplicationScreenState.ScanningInProgress);
-                    //TODO: Perform scanning logic here.
+                    ScanningText.Text = target + " is being scanned..."; // TODO: get filename from MainWindow.
+                    _ = Task.Run(Scan);
 
                 }
                 catch (FileNotFoundException)
