@@ -36,7 +36,8 @@ namespace ProjectScan.Services
         None=0x0,
         FileAccessError=0x1,
         Unauthorised=0x2,
-        GenericError=0x3
+        GenericError=0x3,
+        YaraCompilationError=0x4
     }
 
     public struct ViralTelemetryResult
