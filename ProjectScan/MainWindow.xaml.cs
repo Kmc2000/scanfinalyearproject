@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace ProjectScan
 {
@@ -69,17 +71,25 @@ namespace ProjectScan
         // Filepath of the file chosen by the user to be scanned.
         private string filepath;
 
+        public static int ScanningGoal = 0;
+
         public MainWindow()
         {
             InitializeComponent();
             ButtonDefaultColour = FilePicker.Background;
+            LastRecentFilesUpdate.Text = $"Last updated: {DateTime.Now}";
+            ScanningGoal = DetectionEngines.Sum(x => x.GetRuleCount());
             using (var ctx = new MalwareScannerContext())
             {
+            //PROD only: validate actual DB integrity. 
+#if !DEBUG
                 if(ctx.KnownBadHashes.Count() <= 0)
                 {
                     FatalException("Database contains no hashes.", FaultCode.DatabaseError);
                 }
                 //TODO: CRC / self integrity checks of database.
+#endif
+
             }
             //tick = new(ClockView, this);
         }
@@ -139,22 +149,47 @@ namespace ProjectScan
         };
         public ViralTelemetryResult ScanningResult { get; set; }
 
+        /// <summary>
+        /// Interpolate a set of numbers into a percentage readout (human readable).
+        /// </summary>
+        /// <param name="progress"></param>
+        /// <param name="goal"></param>
+        /// <returns></returns>
+        public decimal Num2Percentage(int progress, int goal)
+        {
+            return (progress / goal) * 100;
+        }
+
         private void Scan()
         {
             if (filepath == null || filepath.Length <= 0)
             {
                 throw new InvalidOperationException();
             }
+#if ARTIFICIAL_DELAY
+            System.Threading.Thread.Sleep(5000);
+
+#endif
+            ViralTelemetryResult ScanningResult = ViralTelemetryResult.OkResult();
+            //Reset execution count.
+            IViralTelemetryService.ExecutionCount = 0;
             foreach (IViralTelemetryService detectionEngine in DetectionEngines)
             {
-                ScanningResult = detectionEngine.Scan(filepath, out ViralTelemetryErrorFlags flags);
+                ScanningResult = detectionEngine.Scan(filepath, out ViralTelemetryErrorFlags flags, this);
                 if (ScanningResult.Categorisation != ViralTelemetryCategorisation.Negative)
                 {
-                    SetResultsUI(ScanningResult);
                     break;
                 }
             }
-            SetApplicationScreen(ApplicationScreenState.ScanComplete);
+            Application.Current.Dispatcher.BeginInvoke(
+              DispatcherPriority.Background,
+              () =>
+              {
+                  SetResultsUI(ScanningResult);
+                  SetApplicationScreen(ApplicationScreenState.ScanComplete);
+              });
+
+
         }
 
         /// <summary>
@@ -193,8 +228,7 @@ namespace ProjectScan
 
                     SetApplicationScreen(ApplicationScreenState.ScanningInProgress);
                     ScanningText.Text = picker.SafeFileName + " is being scanned..."; // TODO: get filename from MainWindow.
-                    //TODO: Perform scanning logic here.
-                    Scan();
+                    _ = Task.Run(Scan);
                 }
             }
             catch (FileNotFoundException)
@@ -319,6 +353,21 @@ namespace ProjectScan
             filenameText.Text = $"Filename: {this.filepath.Split("\\")[^1]}";
             diagnosisText.Text = $"Category: {result.Categorisation}";
             confidenceText.Text = $"Confidence score: {(result.Confidence * 100).ToString() + "%"}";
+            LastRecentFilesUpdate.Text = $"Last updated: {DateTime.Now}";
+            TextBlock b = new TextBlock();
+            b.Text = $"{filenameText.Text} | {diagnosisText.Text} | {confidenceText.Text}";
+            RecentDetections.Children.Add(b);
+        }
+
+        internal void RenderProgress()
+        {
+            Application.Current.Dispatcher.BeginInvoke(
+            DispatcherPriority.Background,
+            () =>
+            {
+                //Update
+                Percentage.Text = $"{Num2Percentage(Volatile.Read(ref IViralTelemetryService.ExecutionCount), ScanningGoal)}%";
+            });
         }
     }
 }

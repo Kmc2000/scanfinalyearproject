@@ -63,7 +63,15 @@ namespace ProjectScan.Services
         /// </summary>
         protected virtual IHashEqualityComparer Instance { get; set; }
 
-        public ViralTelemetryResult Scan(string FileName, out ViralTelemetryErrorFlags flags)
+        public int GetRuleCount()
+        {
+            using(var ctx = new MalwareScannerContext())
+            {
+                return ctx.KnownBadHashes?.Count() ?? 0;
+            }
+        }
+
+        public ViralTelemetryResult Scan(string FileName, out ViralTelemetryErrorFlags flags, MainWindow src)
         {
             flags = ViralTelemetryErrorFlags.None;
             try
@@ -88,6 +96,9 @@ namespace ProjectScan.Services
                                         result = new(hash.Categorisation, 1.0m, ViralTelemetryErrorFlags.None);
                                         break;
                                     }
+                                    //Mark a completed heuristic.
+                                    Interlocked.Increment(ref IViralTelemetryService.ExecutionCount);
+                                    src.RenderProgress();
                                 }
                             }
 
