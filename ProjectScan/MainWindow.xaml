@@ -15,8 +15,8 @@
         mc:Ignorable="d"
         Title="Project Scan: EDUCATIONAL USE ONLY!" Height="450" Width="800">
 	<Grid Margin="0,0,0,0">
-		<materialDesign:Card>
-			<TabControl materialDesign:NavigationRailAssist.ShowSelectionBackground="True"
+		<materialDesign:Card x:Name="Main">
+			<TabControl x:Name="Tabs" materialDesign:NavigationRailAssist.ShowSelectionBackground="True"
                       SnapsToDevicePixels="True"
                       Style="{StaticResource MaterialDesignNavigationRailTabControl}"
                       TabStripPlacement="Left">
@@ -104,9 +104,28 @@
 							<Grid >
 								<materialDesign:Card Padding="32" Margin="32 48 32 0">
 									<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
-										<WrapPanel HorizontalAlignment="Center" Margin="0,0,0,10">
-											<TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}" x:Name="ErrorString" VerticalAlignment="Center" FontSize="20"></TextBlock>
+										<materialDesign:PackIcon Width="64"
+                                           Height="64"
+                                           HorizontalAlignment="Center"
+																 Foreground="Orange"
+                                           Kind="Warning" />
+										<WrapPanel HorizontalAlignment="Center" Margin="0,10,0,10">
+											<TextBlock Style="{DynamicResource MaterialDesignSubtitle1TextBlock}" x:Name="ErrorString" VerticalAlignment="Center"></TextBlock>
 										</WrapPanel>
+										<Button Style="{StaticResource MaterialDesignToolForegroundButton}" Click="GetHelp">
+											<StackPanel Orientation="Horizontal">
+
+												<TextBlock>Help</TextBlock>
+												<materialDesign:PackIcon Width="32"
+												   Height="18"
+												   HorizontalAlignment="Center"
+													VerticalAlignment="Center"
+												   Kind="CommentHelp" />
+											</StackPanel>
+
+											
+										</Button>
+
 									</StackPanel>
 								</materialDesign:Card>
 							</Grid>
@@ -194,6 +213,35 @@
 									Last updated: 
 									</Run>
 						</TextBlock>
+
+					</StackPanel>
+				</TabItem>
+				<TabItem Visibility="Visible" x:Name="DEBUG_OPTIONS">
+					<TabItem.Header>
+
+						<StackPanel>
+							<StackPanel Width="auto" Height="auto">
+								<materialDesign:PackIcon Width="24"
+                                           Height="24"
+                                           HorizontalAlignment="Center"
+                                           Kind="Bug" />
+								<TextBlock HorizontalAlignment="Center" Text="DBG" />
+							</StackPanel>
+						</StackPanel>
+
+					</TabItem.Header>
+					<StackPanel>
+						<TextBlock Margin="32,16,0,0"
+                           Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                           Text="Developer Options" />
+
+						<materialDesign:Card Padding="32" Margin="32 48 32 0" Height="200" AllowDrop="True" Drop="DEBUG_DefinitionFileSelect" PreviewDragOver="FilePicker_PreviewDragOver">
+							<StackPanel Orientation="Vertical" Margin="0" >
+								<TextBox x:Name="DEBUG_DefinitionFile">\dev\null</TextBox>
+								<Button Style="{StaticResource MaterialDesignPaperButton}" Margin="30, 15, 30, 30" Click="DEBUG_UpdateDefinitions">Update Definitions</Button>
+								<Button Style="{StaticResource MaterialDesignPaperButton}" Margin="30, 0, 30, 30" Click="DEBUG_DumpIt" BorderBrush="Red">Clear Definitions</Button>
+							</StackPanel>
+						</materialDesign:Card>
 
 					</StackPanel>
 				</TabItem>

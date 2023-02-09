@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -80,8 +81,13 @@ namespace ProjectScan.Services
                 {
                     using (SHA256 sha256Hash = SHA256.Create())
                     {
+                        StringBuilder sb = new();
                         byte[] fileHash = sha256Hash.ComputeHash(fs);
-                        
+                        for (int i = 0; i < fileHash.Length; i++)
+                        {
+                            sb.Append(fileHash[i].ToString("x2"));
+                        }
+                        fileHash = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
                         ViralTelemetryResult result = ViralTelemetryResult.OkResult();
                         try
                         {

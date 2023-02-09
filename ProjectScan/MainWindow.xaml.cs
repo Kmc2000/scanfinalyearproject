@@ -79,10 +79,15 @@ namespace ProjectScan
             ButtonDefaultColour = FilePicker.Background;
             LastRecentFilesUpdate.Text = $"Last updated: {DateTime.Now}";
             ScanningGoal = DetectionEngines.Sum(x => x.GetRuleCount());
+
+#if DEBUG
+            DEBUG_OPTIONS.Visibility = Visibility.Visible;
+#endif
+
             using (var ctx = new MalwareScannerContext())
             {
-            //PROD only: validate actual DB integrity. 
-#if !DEBUG
+                //PROD only: validate actual DB integrity. 
+#if DEBUG
                 if(ctx.KnownBadHashes.Count() <= 0)
                 {
                     FatalException("Database contains no hashes.", FaultCode.DatabaseError);
@@ -96,8 +101,9 @@ namespace ProjectScan
 
         public enum FaultCode
         {
-            None=0x0,
-            DatabaseError=0x1
+            None = 0x0,
+            DatabaseError = 0x1,
+            HelpPageUnavailable=0x2
         }
 
         public void FatalException(string reason, FaultCode code)
@@ -297,7 +303,7 @@ namespace ProjectScan
                     {
                         FilePicker.Background = ButtonDefaultColour;
                     }
-                }               
+                }
             }
         }
 
@@ -367,6 +373,98 @@ namespace ProjectScan
                 //Update
                 Percentage.Text = $"{Num2Percentage(Volatile.Read(ref IViralTelemetryService.ExecutionCount), ScanningGoal)}%";
             });
+        }
+
+#if DEBUG
+        public string DEBUG_DefinitionTarget = "";
+#endif
+
+        private void DEBUG_DefinitionFileSelect(object sender, DragEventArgs e)
+        {
+#if !DEBUG
+            return;
+#else
+            //Is the user trying to pass us a file?
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                bool err = false;
+                //More than one file is possible. TODO: Handle this?
+                try
+                {
+                    //All the files that the user has tried to drop in.
+                    string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                    string target = files[0];
+                    //Safety check: Attempt to locate the file on the system.
+                    //It is possible that the file was deleted after the user opened the file dialogue.
+                    if (!System.IO.File.Exists(target))
+                    {
+                        throw new FileNotFoundException();
+                    }
+                    //this.filepath = target;
+                    DEBUG_DefinitionTarget = target;
+                    DEBUG_DefinitionFile.Text = target;
+
+                }
+                catch (FileNotFoundException)
+                {
+                    DEBUG_DefinitionFile.Text = "File not found.";
+                    err = true;
+                }
+                finally
+                {
+                    if (err)
+                    {
+                        DEBUG_DefinitionFile.Background = BgDanger;
+                    }
+                    else
+                    {
+                        DEBUG_DefinitionFile.Background = ButtonDefaultColour;
+                    }
+                }
+            }
+#endif
+        }
+
+        private void DEBUG_UpdateDefinitions(object sender, RoutedEventArgs e)
+        {
+#if !DEBUG
+            return;
+#else
+            if (String.IsNullOrEmpty(this.DEBUG_DefinitionTarget))
+            {
+                DEBUG_DefinitionFile.Background = BgDanger;
+                return;
+            }
+            DEBUG_DefinitionFile.Background = ButtonDefaultColour;
+            RulesEngineService.GenerateRules(this.DEBUG_DefinitionTarget);
+#endif
+        }
+        private static readonly string HelpLink = "https://github.com/";
+        private void GetHelp(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                //Nope!
+                if (String.IsNullOrEmpty(HelpLink))
+                {
+                    throw new Exception();
+                }
+                var sInfo = new System.Diagnostics.ProcessStartInfo(HelpLink)
+                {
+                    UseShellExecute = true,
+                };
+                System.Diagnostics.Process.Start(sInfo);
+            }
+            catch (Exception)
+            {
+                //There is no help for you.
+                FatalException("Get help link not found.", FaultCode.HelpPageUnavailable);
+            }
+        }
+
+        private void DEBUG_DumpIt(object sender, RoutedEventArgs e)
+        {
+            RulesEngineService.ClearDatabase();
         }
     }
 }
