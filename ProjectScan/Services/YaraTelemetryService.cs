@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using libyaraNET;
 
@@ -10,7 +11,16 @@ namespace ProjectScan.Services
 {
     internal class YaraTelemetryService : IViralTelemetryService
     {
-        public ViralTelemetryResult Scan(string FileName, out ViralTelemetryErrorFlags flags)
+        /// <summary>
+        /// Return the number of rules known to this heuristic.
+        /// </summary>
+        /// <returns></returns>
+        public int GetRuleCount()
+        {
+            return Directory.EnumerateFiles(Directory.GetCurrentDirectory().Replace("\\bin\\Debug\\net6.0-windows", "") + "\\Rules", "*.yar", SearchOption.AllDirectories).Count();
+        }
+
+        public ViralTelemetryResult Scan(string FileName, out ViralTelemetryErrorFlags flags, MainWindow src)
         {
             flags = ViralTelemetryErrorFlags.None;
             try
@@ -24,6 +34,9 @@ namespace ProjectScan.Services
                     foreach (string file in Directory.EnumerateFiles(dir + "\\Rules", "*.yar", SearchOption.AllDirectories))
                     {
                         compiler.AddRuleFile(file);
+                        //Mark a completed heuristic.
+                        Interlocked.Increment(ref IViralTelemetryService.ExecutionCount);
+                        src.RenderProgress();
                     }
 
                     using (Rules? rules = compiler.GetRules())

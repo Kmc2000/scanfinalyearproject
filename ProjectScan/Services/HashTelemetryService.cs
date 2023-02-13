@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -63,7 +64,15 @@ namespace ProjectScan.Services
         /// </summary>
         protected virtual IHashEqualityComparer Instance { get; set; }
 
-        public ViralTelemetryResult Scan(string FileName, out ViralTelemetryErrorFlags flags)
+        public int GetRuleCount()
+        {
+            using(var ctx = new MalwareScannerContext())
+            {
+                return ctx.KnownBadHashes?.Count() ?? 0;
+            }
+        }
+
+        public ViralTelemetryResult Scan(string FileName, out ViralTelemetryErrorFlags flags, MainWindow src)
         {
             flags = ViralTelemetryErrorFlags.None;
             try
@@ -72,8 +81,13 @@ namespace ProjectScan.Services
                 {
                     using (SHA256 sha256Hash = SHA256.Create())
                     {
+                        StringBuilder sb = new();
                         byte[] fileHash = sha256Hash.ComputeHash(fs);
-                        
+                        for (int i = 0; i < fileHash.Length; i++)
+                        {
+                            sb.Append(fileHash[i].ToString("x2"));
+                        }
+                        fileHash = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
                         ViralTelemetryResult result = ViralTelemetryResult.OkResult();
                         try
                         {
@@ -88,6 +102,9 @@ namespace ProjectScan.Services
                                         result = new(hash.Categorisation, 1.0m, ViralTelemetryErrorFlags.None);
                                         break;
                                     }
+                                    //Mark a completed heuristic.
+                                    Interlocked.Increment(ref IViralTelemetryService.ExecutionCount);
+                                    src.RenderProgress();
                                 }
                             }
 

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace ProjectScan
 {
@@ -69,25 +71,39 @@ namespace ProjectScan
         // Filepath of the file chosen by the user to be scanned.
         private string filepath;
 
+        public static int ScanningGoal = 0;
+
         public MainWindow()
         {
             InitializeComponent();
             ButtonDefaultColour = FilePicker.Background;
+            LastRecentFilesUpdate.Text = $"Last updated: {DateTime.Now}";
+            ScanningGoal = DetectionEngines.Sum(x => x.GetRuleCount());
+
+#if DEBUG
+            DEBUG_OPTIONS.Visibility = Visibility.Visible;
+#endif
+
             using (var ctx = new MalwareScannerContext())
             {
+                //PROD only: validate actual DB integrity. 
+#if DEBUG
                 if(ctx.KnownBadHashes.Count() <= 0)
                 {
                     FatalException("Database contains no hashes.", FaultCode.DatabaseError);
                 }
                 //TODO: CRC / self integrity checks of database.
+#endif
+
             }
             //tick = new(ClockView, this);
         }
 
         public enum FaultCode
         {
-            None=0x0,
-            DatabaseError=0x1
+            None = 0x0,
+            DatabaseError = 0x1,
+            HelpPageUnavailable=0x2
         }
 
         public void FatalException(string reason, FaultCode code)
@@ -139,22 +155,47 @@ namespace ProjectScan
         };
         public ViralTelemetryResult ScanningResult { get; set; }
 
+        /// <summary>
+        /// Interpolate a set of numbers into a percentage readout (human readable).
+        /// </summary>
+        /// <param name="progress"></param>
+        /// <param name="goal"></param>
+        /// <returns></returns>
+        public decimal Num2Percentage(int progress, int goal)
+        {
+            return (progress / goal) * 100;
+        }
+
         private void Scan()
         {
             if (filepath == null || filepath.Length <= 0)
             {
                 throw new InvalidOperationException();
             }
+#if ARTIFICIAL_DELAY
+            System.Threading.Thread.Sleep(5000);
+
+#endif
+            ViralTelemetryResult ScanningResult = ViralTelemetryResult.OkResult();
+            //Reset execution count.
+            IViralTelemetryService.ExecutionCount = 0;
             foreach (IViralTelemetryService detectionEngine in DetectionEngines)
             {
-                ScanningResult = detectionEngine.Scan(filepath, out ViralTelemetryErrorFlags flags);
+                ScanningResult = detectionEngine.Scan(filepath, out ViralTelemetryErrorFlags flags, this);
                 if (ScanningResult.Categorisation != ViralTelemetryCategorisation.Negative)
                 {
-                    SetResultsUI(ScanningResult);
                     break;
                 }
             }
-            SetApplicationScreen(ApplicationScreenState.ScanComplete);
+            Application.Current.Dispatcher.BeginInvoke(
+              DispatcherPriority.Background,
+              () =>
+              {
+                  SetResultsUI(ScanningResult);
+                  SetApplicationScreen(ApplicationScreenState.ScanComplete);
+              });
+
+
         }
 
         /// <summary>
@@ -193,8 +234,7 @@ namespace ProjectScan
 
                     SetApplicationScreen(ApplicationScreenState.ScanningInProgress);
                     ScanningText.Text = picker.SafeFileName + " is being scanned..."; // TODO: get filename from MainWindow.
-                    //TODO: Perform scanning logic here.
-                    Scan();
+                    _ = Task.Run(Scan);
                 }
             }
             catch (FileNotFoundException)
@@ -242,11 +282,10 @@ namespace ProjectScan
                     Console.WriteLine(target);
 
 #endif
-                    
-                    // Set field that stores the filepath for later usage.
                     this.filepath = target;
                     SetApplicationScreen(ApplicationScreenState.ScanningInProgress);
-                    //TODO: Perform scanning logic here.
+                    ScanningText.Text = target + " is being scanned..."; // TODO: get filename from MainWindow.
+                    _ = Task.Run(Scan);
 
                 }
                 catch (FileNotFoundException)
@@ -264,7 +303,7 @@ namespace ProjectScan
                     {
                         FilePicker.Background = ButtonDefaultColour;
                     }
-                }               
+                }
             }
         }
 
@@ -319,6 +358,113 @@ namespace ProjectScan
             filenameText.Text = $"Filename: {this.filepath.Split("\\")[^1]}";
             diagnosisText.Text = $"Category: {result.Categorisation}";
             confidenceText.Text = $"Confidence score: {(result.Confidence * 100).ToString() + "%"}";
+            LastRecentFilesUpdate.Text = $"Last updated: {DateTime.Now}";
+            TextBlock b = new TextBlock();
+            b.Text = $"{filenameText.Text} | {diagnosisText.Text} | {confidenceText.Text}";
+            RecentDetections.Children.Add(b);
+        }
+
+        internal void RenderProgress()
+        {
+            Application.Current.Dispatcher.BeginInvoke(
+            DispatcherPriority.Background,
+            () =>
+            {
+                //Update
+                Percentage.Text = $"{Num2Percentage(Volatile.Read(ref IViralTelemetryService.ExecutionCount), ScanningGoal)}%";
+            });
+        }
+
+#if DEBUG
+        public string DEBUG_DefinitionTarget = "";
+#endif
+
+        private void DEBUG_DefinitionFileSelect(object sender, DragEventArgs e)
+        {
+#if !DEBUG
+            return;
+#else
+            //Is the user trying to pass us a file?
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                bool err = false;
+                //More than one file is possible. TODO: Handle this?
+                try
+                {
+                    //All the files that the user has tried to drop in.
+                    string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                    string target = files[0];
+                    //Safety check: Attempt to locate the file on the system.
+                    //It is possible that the file was deleted after the user opened the file dialogue.
+                    if (!System.IO.File.Exists(target))
+                    {
+                        throw new FileNotFoundException();
+                    }
+                    //this.filepath = target;
+                    DEBUG_DefinitionTarget = target;
+                    DEBUG_DefinitionFile.Text = target;
+
+                }
+                catch (FileNotFoundException)
+                {
+                    DEBUG_DefinitionFile.Text = "File not found.";
+                    err = true;
+                }
+                finally
+                {
+                    if (err)
+                    {
+                        DEBUG_DefinitionFile.Background = BgDanger;
+                    }
+                    else
+                    {
+                        DEBUG_DefinitionFile.Background = ButtonDefaultColour;
+                    }
+                }
+            }
+#endif
+        }
+
+        private void DEBUG_UpdateDefinitions(object sender, RoutedEventArgs e)
+        {
+#if !DEBUG
+            return;
+#else
+            if (String.IsNullOrEmpty(this.DEBUG_DefinitionTarget))
+            {
+                DEBUG_DefinitionFile.Background = BgDanger;
+                return;
+            }
+            DEBUG_DefinitionFile.Background = ButtonDefaultColour;
+            RulesEngineService.GenerateRules(this.DEBUG_DefinitionTarget);
+#endif
+        }
+        private static readonly string HelpLink = "https://github.com/";
+        private void GetHelp(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                //Nope!
+                if (String.IsNullOrEmpty(HelpLink))
+                {
+                    throw new Exception();
+                }
+                var sInfo = new System.Diagnostics.ProcessStartInfo(HelpLink)
+                {
+                    UseShellExecute = true,
+                };
+                System.Diagnostics.Process.Start(sInfo);
+            }
+            catch (Exception)
+            {
+                //There is no help for you.
+                FatalException("Get help link not found.", FaultCode.HelpPageUnavailable);
+            }
+        }
+
+        private void DEBUG_DumpIt(object sender, RoutedEventArgs e)
+        {
+            RulesEngineService.ClearDatabase();
         }
     }
 }

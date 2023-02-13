@@ -63,7 +63,6 @@ namespace ProjectScan.Services
         /// </summary>
         /// <returns></returns>
         internal static ViralTelemetryResult OkResult() => new ViralTelemetryResult(ViralTelemetryCategorisation.Negative, 0.0m, ViralTelemetryErrorFlags.None);
-
     }
 
     public interface IViralTelemetryService
@@ -72,7 +71,13 @@ namespace ProjectScan.Services
         /// Perform a scan of the specified file, and return the results.
         /// </summary>
         /// <returns></returns>
-        public ViralTelemetryResult Scan(string FileName, out ViralTelemetryErrorFlags flags);
+        public ViralTelemetryResult Scan(string FileName, out ViralTelemetryErrorFlags flags, MainWindow src);
+        public int GetRuleCount();
+        /// <summary>
+        /// The number of executions we have performed.
+        /// Used to extrapolate completion %.
+        /// </summary>
+        public static int ExecutionCount = 0;
     }
 
     /// <summary>
@@ -81,7 +86,15 @@ namespace ProjectScan.Services
     /// </summary>
     internal class ViralTelemetryService : IViralTelemetryService
     {
-        public ViralTelemetryResult Scan(string FileName, out ViralTelemetryErrorFlags flags)
+        /// <summary>
+        /// Return the number of rules known to this heuristic.
+        /// </summary>
+        /// <returns></returns>
+        public int GetRuleCount()
+        {
+            return 0;
+        }
+        public ViralTelemetryResult Scan(string FileName, out ViralTelemetryErrorFlags flags, MainWindow src)
         {
             flags = ViralTelemetryErrorFlags.None;
             try
