@@ -6,9 +6,19 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationIcon>Assets\appicon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\appicon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MaterialDesignThemes" Version="4.7.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -21,6 +31,12 @@
   <ItemGroup>
     <Folder Include="Migrations\" />
 	<Folder Include="Models\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>
