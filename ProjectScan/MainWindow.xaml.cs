@@ -439,6 +439,42 @@ namespace ProjectScan
             RulesEngineService.GenerateRules(this.DEBUG_DefinitionTarget);
 #endif
         }
+
+        private async void DEBUG_UpdateYaraRules(object sender, RoutedEventArgs e)
+        {
+#if !DEBUG
+            return;
+#else
+
+            if (String.IsNullOrEmpty(this.DEBUG_DefinitionTarget))
+            {
+                DEBUG_DefinitionFile.Background = BgDanger;
+                return;
+            }
+            DEBUG_DefinitionFile.Background = ButtonDefaultColour;
+            // Load rules from directory including subdirectories
+            var rulesList = RulesEngineService.LoadRulesFromDirectory(this.DEBUG_DefinitionTarget);
+            await RulesEngineService.RegisterYaraRules(rulesList);
+#endif      
+        }
+
+        private void DEBUG_DefinitionFileTextChanged(object sender, RoutedEventArgs e)
+        {
+#if !DEBUG
+            return;
+#else
+            if(sender == null)
+            {
+                return;
+            }
+
+            TextBox textbox = sender as TextBox;
+            this.DEBUG_DefinitionTarget = textbox.Text;
+#endif
+        }
+
+
+
         private static readonly string HelpLink = "https://github.com/";
         private void GetHelp(object sender, RoutedEventArgs e)
         {
@@ -465,6 +501,11 @@ namespace ProjectScan
         private void DEBUG_DumpIt(object sender, RoutedEventArgs e)
         {
             RulesEngineService.ClearDatabase();
+        }
+
+        private void DEBUG_DefinitionFile_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
         }
     }
 }

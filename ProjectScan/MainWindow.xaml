@@ -235,11 +235,12 @@
                            Style="{StaticResource MaterialDesignHeadline5TextBlock}"
                            Text="Developer Options" />
 
-						<materialDesign:Card Padding="32" Margin="32 48 32 0" Height="200" AllowDrop="True" Drop="DEBUG_DefinitionFileSelect" PreviewDragOver="FilePicker_PreviewDragOver">
+						<materialDesign:Card Padding="32" Margin="32 48 32 0" Height="270" AllowDrop="True" Drop="DEBUG_DefinitionFileSelect" PreviewDragOver="FilePicker_PreviewDragOver">
 							<StackPanel Orientation="Vertical" Margin="0" >
-								<TextBox x:Name="DEBUG_DefinitionFile">\dev\null</TextBox>
-								<Button Style="{StaticResource MaterialDesignPaperButton}" Margin="30, 15, 30, 30" Click="DEBUG_UpdateDefinitions">Update Definitions</Button>
-								<Button Style="{StaticResource MaterialDesignPaperButton}" Margin="30, 0, 30, 30" Click="DEBUG_DumpIt" BorderBrush="Red">Clear Definitions</Button>
+                                <TextBox x:Name="DEBUG_DefinitionFile" TextChanged="DEBUG_DefinitionFileTextChanged">\dev\null</TextBox>
+								<Button Style="{StaticResource MaterialDesignPaperButton}" Margin="30, 30, 30, 10" Click="DEBUG_UpdateDefinitions">Update Hash Definitions</Button>
+                                <Button Style="{StaticResource MaterialDesignPaperButton}" Margin="30, 10, 30, 10" Click="DEBUG_UpdateYaraRules">Update YARA Definitions</Button>
+                                <Button Style="{StaticResource MaterialDesignPaperButton}" Margin="30, 10, 30, 30" Click="DEBUG_DumpIt" BorderBrush="Red">Clear Definitions</Button>
 							</StackPanel>
 						</materialDesign:Card>
 

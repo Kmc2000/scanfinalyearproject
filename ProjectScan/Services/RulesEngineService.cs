@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
 using ProjectScan.Models;
 using System;
 using System.Collections.Generic;
@@ -92,7 +93,7 @@ namespace ProjectScan.Services
             }
         }
 
-        internal List<string> LoadRulesFromDirectory(string filePath)
+        internal static List<string> LoadRulesFromDirectory(string filePath)
         {
             
             List<string> rules = new List<string>();
@@ -150,7 +151,7 @@ namespace ProjectScan.Services
         }
 
         /// <summary>
-        /// Register a YARA rule into the database.
+        /// Register a list of YARA rule into the database.
         /// </summary>
         /// <param name="rule">A string representation of a YARA rule.</param>
         /// <param name="category">The classification category assigned to the rule. PUA, malware, etc.</param>
@@ -185,18 +186,6 @@ namespace ProjectScan.Services
                 await context.SaveChangesAsync();
             }
         }
-
-        /// <summary>
-        /// Loads all YARA rules in the local Rules directory and inserts them into the database.
-        /// </summary>
-        public async void InsertRulesToDatabase()
-        {
-            string path = Directory.GetCurrentDirectory().Replace("\\bin\\Debug\\net6.0-windows", "") + "\\Rules";
-            List<string> rules = LoadRulesFromDirectory(path);
-
-            await RegisterYaraRules(rules);
-        }
-
     }
 #endif
 }
