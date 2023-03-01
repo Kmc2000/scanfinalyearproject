@@ -177,14 +177,21 @@ namespace ProjectScan.Services
             }
            
             
-
-            using(MalwareScannerContext context = new())
+            try
             {
-                // Reset YARA rules table
-                context.RemoveRange(context.KnownBadYaraRules);
-                await context.KnownBadYaraRules.AddRangeAsync(rulesList);
-                await context.SaveChangesAsync();
+                using (MalwareScannerContext context = new())
+                {               
+                    context.KnownBadYaraRules.AddRange(rulesList);
+                    await context.SaveChangesAsync();
+                }
             }
+            catch (Exception e) 
+            {
+#if DEBUG
+                Console.WriteLine(e.ToString());
+#endif
+            }
+            
         }
     }
 #endif
