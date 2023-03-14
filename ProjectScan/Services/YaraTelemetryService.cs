@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using libyaraNET;
+using ProjectScan.Models;
 
 namespace ProjectScan.Services
 {
@@ -26,14 +27,15 @@ namespace ProjectScan.Services
             try
             {
                 using (YaraContext ctx = new YaraContext())
-                using(Compiler compiler = new Compiler())       
+                using(Compiler compiler = new Compiler())
+                using (MalwareScannerContext dbContext = new MalwareScannerContext())
                 {
-           
-                    // Temporarily loading files from project directory until it's moved into sqlite database.
-                    string dir = Directory.GetCurrentDirectory().Replace("\\bin\\Debug\\net6.0-windows", "");
-                    foreach (string file in Directory.EnumerateFiles(dir + "\\Rules", "*.yar", SearchOption.AllDirectories))
+                      
+                    List<YaraRuleset> rulesList = dbContext.KnownBadYaraRules.ToList();
+                    
+                    foreach (YaraRuleset rule in rulesList)
                     {
-                        compiler.AddRuleFile(file);
+                        compiler.AddRuleString(rule.YaraRule);
                         //Mark a completed heuristic.
                         Interlocked.Increment(ref IViralTelemetryService.ExecutionCount);
                         src.RenderProgress();
