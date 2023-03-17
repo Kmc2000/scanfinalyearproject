@@ -15,15 +15,15 @@
         mc:Ignorable="d"
         Title="Project Scan: EDUCATIONAL USE ONLY!" Height="450" Width="800">
 	<Grid Margin="0,0,0,0">
-		<materialDesign:Card x:Name="Main">
-			<TabControl x:Name="Tabs" materialDesign:NavigationRailAssist.ShowSelectionBackground="True"
+		<materialDesign:Card x:Name="Main" AutomationProperties.Name="Main Application Window">
+			<TabControl AutomationProperties.Name="Scanning Tabs" x:Name="Tabs" materialDesign:NavigationRailAssist.ShowSelectionBackground="True"
                       SnapsToDevicePixels="True"
                       Style="{StaticResource MaterialDesignNavigationRailTabControl}"
                       TabStripPlacement="Left">
 				<materialDesign:NavigationRailAssist.FloatingContent>
 					<Image Name="ImageViewer1" Source="pack://application:,,,/Assets/logo.png" Margin="0 8 0 8" Width="64" Height="64" />
 				</materialDesign:NavigationRailAssist.FloatingContent>
-				<TabItem>
+				<TabItem AutomationProperties.Name="Scanning Dialogue">
 					<TabItem.Header>
 						<StackPanel Width="auto" Height="auto">
 							<materialDesign:PackIcon Width="24"
@@ -37,13 +37,13 @@
 						<TextBlock Margin="32,16,0,0"
                            Style="{StaticResource MaterialDesignHeadline5TextBlock}"
                            Text="Scan A File" />
-						<StackPanel>
+						<StackPanel AutomationProperties.Name="Scanning Window">
 
 							<!--File selection screen.-->
 							<Grid Visibility="Visible" x:Name="SelectFile">
 								<materialDesign:Card Padding="32" Margin="32 48 32 0">
 									<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
-										<WrapPanel >
+										<WrapPanel AutomationProperties.Name="Decorative Folder Icons" >
 											<materialDesign:PackIcon Margin="16" Width="64"
                                            Height="64"
                                            HorizontalAlignment="Center"
@@ -71,7 +71,7 @@
                                            Kind="Folder" />
 										</WrapPanel>
 										<WrapPanel HorizontalAlignment="Center" Margin="0,0,0,10">
-											<Button Style="{StaticResource MaterialDesignPaperButton}" AllowDrop="True" Drop="FilePicker_Drop" PreviewDragOver="FilePicker_PreviewDragOver" Margin="0 0 0 0" Height="64" Width="500" x:Name="FilePicker" Click="ChooseFile">SELECT FILE TO SCAN</Button>
+											<Button AutomationProperties.Name="Choose A File To Scan" Style="{StaticResource MaterialDesignPaperButton}" AllowDrop="True" Drop="FilePicker_Drop" PreviewDragOver="FilePicker_PreviewDragOver" Margin="0 0 0 0" Height="64" Width="500" x:Name="FilePicker" Click="ChooseFile" AutomationProperties.IsRequiredForForm="True">SELECT FILE TO SCAN</Button>
 
 										</WrapPanel>
 										<StackPanel Orientation="Horizontal">
@@ -91,7 +91,7 @@
                                            HorizontalAlignment="Center"
 										   Foreground="#F7A431"
                                            Kind="Folder" />
-												<Button AllowDrop="True" Drop="FilePicker_Drop" PreviewDragOver="FilePicker_PreviewDragOver"  Style="{StaticResource MaterialDesignFlatLightButton}" HorizontalAlignment="Center" Click="ChooseFile" >DRAG AND DROP</Button>
+												<Button AutomationProperties.Name="Drag And Drop A File To Scan" AllowDrop="True" Drop="FilePicker_Drop" PreviewDragOver="FilePicker_PreviewDragOver"  Style="{StaticResource MaterialDesignFlatLightButton}" HorizontalAlignment="Center" Click="ChooseFile" >DRAG AND DROP</Button>
 											</StackPanel>
 
 										</StackPanel>
@@ -100,7 +100,7 @@
 
 							</Grid>
 						</StackPanel>
-						<StackPanel Visibility="Hidden" x:Name="ErrorDisplay">
+						<StackPanel AutomationProperties.Name="Error display" Visibility="Hidden" x:Name="ErrorDisplay">
 							<Grid >
 								<materialDesign:Card Padding="32" Margin="32 48 32 0">
 									<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
@@ -130,12 +130,12 @@
 								</materialDesign:Card>
 							</Grid>
 						</StackPanel>
-						<StackPanel Visibility="Hidden" x:Name="ScanningInProgress">
+						<StackPanel AutomationProperties.Name="Scanning In Progress Dialogue" Visibility="Hidden" x:Name="ScanningInProgress">
 							<!--Scanning in progress screen.-->
 							<materialDesign:Card Padding="32" Margin="32 48 32 0" Height="240">
 								<StackPanel >
-									<TextBlock x:Name="ScanningText" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource MaterialDesignHeadline5TextBlock}">Scanning...</TextBlock>
-									<ProgressBar Visibility="Visible" Style="{StaticResource MaterialDesignCircularProgressBar}" x:Name="ProgBar" Padding="0" Minimum="0" Maximum="100" Width="96" Height="96" Value="0" Margin="0 12 0 0" IsIndeterminate="True">
+									<TextBlock AutomationProperties.HelpText="Scanning In Progress" x:Name="ScanningText" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource MaterialDesignHeadline5TextBlock}">Scanning...</TextBlock>
+									<ProgressBar AutomationProperties.HelpText="Scanning Progress Bar"  Visibility="Visible" Style="{StaticResource MaterialDesignCircularProgressBar}" x:Name="ProgBar" Padding="0" Minimum="0" Maximum="100" Width="96" Height="96" Value="0" Margin="0 12 0 0" IsIndeterminate="True">
 
 									</ProgressBar>
 									<TextBlock x:Name="Percentage" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}">0%</TextBlock>
@@ -145,7 +145,7 @@
 							</materialDesign:Card>
 
 						</StackPanel>
-						<StackPanel Visibility="Hidden" x:Name="ScanComplete">
+						<StackPanel AutomationProperties.Name="Scanning Completed Dialogue" Visibility="Hidden" x:Name="ScanComplete">
 							<materialDesign:Card Padding="32" Margin="32 48 32 0">
 								<!--Scanning complete screen.-->
 								<Grid>
@@ -161,18 +161,18 @@
 									</Grid.RowDefinitions>
 
 									<!--Filename display-->
-									<TextBlock x:Name="filenameText" Grid.Row="0" Grid.ColumnSpan="2" Style="{DynamicResource MaterialDesignHeadline5TextBlock}" HorizontalAlignment="Center" FontWeight="SemiBold">[Filename]</TextBlock>
+									<TextBlock AutomationProperties.HelpText="Scanned File Name" x:Name="filenameText" Grid.Row="0" Grid.ColumnSpan="2" Style="{DynamicResource MaterialDesignHeadline5TextBlock}" HorizontalAlignment="Center" FontWeight="SemiBold">[Filename]</TextBlock>
 									<!--Diagnosis display-->
-									<TextBlock x:Name="diagnosisText" Grid.Row="1" Grid.ColumnSpan="2"  HorizontalAlignment="Center" Style="{DynamicResource MaterialDesignSubtitle1TextBlock}">Diagnosis: ...</TextBlock>
+									<TextBlock x:Name="diagnosisText" AutomationProperties.HelpText="File Diagnosis" Grid.Row="1" Grid.ColumnSpan="2"  HorizontalAlignment="Center" Style="{DynamicResource MaterialDesignSubtitle1TextBlock}">Diagnosis: ...</TextBlock>
 									<!--Confidence score display-->
-									<TextBlock x:Name="confidenceText" Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center" Style="{DynamicResource MaterialDesignSubtitle2TextBlock}">Confidence score: ...</TextBlock>
+									<TextBlock x:Name="confidenceText" AutomationProperties.HelpText="Diagnosis Confidence" Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center" Style="{DynamicResource MaterialDesignSubtitle2TextBlock}">Confidence score: ...</TextBlock>
 
 
 									<!--Delete the scanned file-->
-									<Button Style="{StaticResource MaterialDesignPaperButton}" Margin="30, 15, 30, 30" Grid.Row="3" Grid.Column="0" Click="DeleteFile">Remove File</Button>
+									<Button AutomationProperties.Name="Delete This File" Style="{StaticResource MaterialDesignPaperButton}" Margin="30, 15, 30, 30" Grid.Row="3" Grid.Column="0" Click="DeleteFile">Remove File</Button>
 
 									<!--Return to file selection-->
-									<Button Style="{StaticResource MaterialDesignPaperButton}" Margin="30, 15, 30, 30" Grid.Row="3" Grid.Column="1" Click="ReturnToStart">Return to File Selection</Button>
+									<Button AutomationProperties.Name="Return To File Selection" Style="{StaticResource MaterialDesignPaperButton}" Margin="30, 15, 30, 30" Grid.Row="3" Grid.Column="1" Click="ReturnToStart">Return to File Selection</Button>
 								</Grid>
 							</materialDesign:Card>
 
@@ -181,10 +181,10 @@
 					</Grid>
 				</TabItem>
 
-				<TabItem>
+				<TabItem AutomationProperties.Name="Recent File Detections">
 					<TabItem.Header>
 
-						<StackPanel>
+						<StackPanel AutomationProperties.Name="Recently Detected Files">
 							<StackPanel Width="auto" Height="auto">
 								<materialDesign:PackIcon Width="24"
                                            Height="24"
