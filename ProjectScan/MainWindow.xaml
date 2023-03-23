@@ -216,7 +216,7 @@
 
 					</StackPanel>
 				</TabItem>
-				<TabItem Visibility="Visible" x:Name="DEBUG_OPTIONS">
+				<TabItem Visibility="Hidden" x:Name="DEBUG_OPTIONS">
 					<TabItem.Header>
 
 						<StackPanel>

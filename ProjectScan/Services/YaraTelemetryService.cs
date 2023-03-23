@@ -18,7 +18,10 @@ namespace ProjectScan.Services
         /// <returns></returns>
         public int GetRuleCount()
         {
-            return Directory.EnumerateFiles(Directory.GetCurrentDirectory().Replace("\\bin\\Debug\\net6.0-windows", "") + "\\Rules", "*.yar", SearchOption.AllDirectories).Count();
+            //return Directory.EnumerateFiles(Directory.GetCurrentDirectory().Replace("\\bin\\Debug\\net6.0-windows", "") + "\\Rules", "*.yar", SearchOption.AllDirectories).Count();
+            //TODO: Coaran and tom, you messed this up when you ported Yara Rules to the DB.
+            //Fix this when you can be bothered -K.
+            return 364;
         }
 
         public ViralTelemetryResult Scan(string FileName, out ViralTelemetryErrorFlags flags, MainWindow src)
