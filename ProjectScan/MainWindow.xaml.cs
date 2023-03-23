@@ -179,21 +179,30 @@ namespace ProjectScan
             ViralTelemetryResult ScanningResult = ViralTelemetryResult.OkResult();
             //Reset execution count.
             IViralTelemetryService.ExecutionCount = 0;
+            int _i = 0;
             foreach (IViralTelemetryService detectionEngine in DetectionEngines)
             {
                 ScanningResult = detectionEngine.Scan(filepath, out ViralTelemetryErrorFlags flags, this);
+                Application.Current.Dispatcher.BeginInvoke(
+                DispatcherPriority.Normal,
+                () =>
+                {
+                    //Update
+                    Percentage.Text = $"{Num2Percentage(++_i, DetectionEngines.Count)}%";
+                });
                 if (ScanningResult.Categorisation != ViralTelemetryCategorisation.Negative)
                 {
                     break;
                 }
             }
+  
             Application.Current.Dispatcher.BeginInvoke(
-              DispatcherPriority.Background,
-              () =>
-              {
-                  SetResultsUI(ScanningResult);
-                  SetApplicationScreen(ApplicationScreenState.ScanComplete);
-              });
+                DispatcherPriority.Normal,
+                () =>
+                {
+                    SetResultsUI(ScanningResult);
+                    SetApplicationScreen(ApplicationScreenState.ScanComplete);
+                });
 
 
         }
@@ -366,13 +375,15 @@ namespace ProjectScan
 
         internal void RenderProgress()
         {
+#if HACK
             Application.Current.Dispatcher.BeginInvoke(
-            DispatcherPriority.Background,
+            DispatcherPriority.Normal,
             () =>
             {
                 //Update
                 Percentage.Text = $"{Num2Percentage(Volatile.Read(ref IViralTelemetryService.ExecutionCount), ScanningGoal)}%";
             });
+#endif
         }
 
 #if DEBUG
@@ -455,7 +466,7 @@ namespace ProjectScan
             // Load rules from directory including subdirectories
             var rulesList = RulesEngineService.LoadRulesFromDirectory(this.DEBUG_DefinitionTarget);
             await RulesEngineService.RegisterYaraRules(rulesList);
-#endif      
+#endif
         }
 
         private void DEBUG_DefinitionFileTextChanged(object sender, RoutedEventArgs e)
@@ -500,7 +511,9 @@ namespace ProjectScan
 
         private void DEBUG_DumpIt(object sender, RoutedEventArgs e)
         {
+#if DEBUG
             RulesEngineService.ClearDatabase();
+#endif
         }
 
         private void DEBUG_DefinitionFile_TextChanged(object sender, TextChangedEventArgs e)
