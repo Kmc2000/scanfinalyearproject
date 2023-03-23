@@ -8,7 +8,7 @@ Final year project, involving creating a virus scanner program.
 You can visit our website at https://kmc2000.github.io/scanfinalyearproject/ to learn more!
 
 # What can it do?:
-* This program scans files and, using some clever heuristics, determines whether or not it looks like malware or not. 
+* This program scans files and, using some clever heuristics, determines whether or not it looks like malware. 
 * It will provide a confidence score and a classification, with the option to remove a file.
 
 # Running
