@@ -96,7 +96,7 @@ namespace ProjectScan
 #endif
 
             }
-            //tick = new(ClockView, this);
+
         }
 
         public enum FaultCode

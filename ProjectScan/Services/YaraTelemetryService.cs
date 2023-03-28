@@ -18,7 +18,10 @@ namespace ProjectScan.Services
         /// <returns></returns>
         public int GetRuleCount()
         {
-            return Directory.EnumerateFiles(Directory.GetCurrentDirectory().Replace("\\bin\\Debug\\net6.0-windows", "") + "\\Rules", "*.yar", SearchOption.AllDirectories).Count();
+            using (MalwareScannerContext dbContext = new MalwareScannerContext())
+            {
+                return dbContext.KnownBadYaraRules.Count();
+            }
         }
 
         public ViralTelemetryResult Scan(string FileName, out ViralTelemetryErrorFlags flags, MainWindow src)
