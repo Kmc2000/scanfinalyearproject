@@ -54,7 +54,6 @@ namespace ProjectScan
     /// </summary>
     public partial class MainWindow : Window
     {
-        //Clock? tick { get; set; } = null;
 
         /// <summary>
         /// The default colour of a button as it is rendered at runtime.
@@ -73,12 +72,16 @@ namespace ProjectScan
 
         public static int ScanningGoal = 0;
 
+        private RulesEngineService rulesEngineService { get; set; }
+
+
         public MainWindow()
         {
             InitializeComponent();
             ButtonDefaultColour = FilePicker.Background;
             LastRecentFilesUpdate.Text = $"Last updated: {DateTime.Now}";
             ScanningGoal = DetectionEngines.Sum(x => x.GetRuleCount());
+            rulesEngineService = new RulesEngineService();
 
 #if DEBUG
             DEBUG_OPTIONS.Visibility = Visibility.Visible;
@@ -96,7 +99,7 @@ namespace ProjectScan
 #endif
 
             }
-            //tick = new(ClockView, this);
+            
         }
 
         public enum FaultCode
@@ -436,7 +439,7 @@ namespace ProjectScan
                 return;
             }
             DEBUG_DefinitionFile.Background = ButtonDefaultColour;
-            RulesEngineService.GenerateRules(this.DEBUG_DefinitionTarget);
+            rulesEngineService.GenerateRules(this.DEBUG_DefinitionTarget);
 #endif
         }
 
@@ -453,8 +456,8 @@ namespace ProjectScan
             }
             DEBUG_DefinitionFile.Background = ButtonDefaultColour;
             // Load rules from directory including subdirectories
-            var rulesList = RulesEngineService.LoadRulesFromDirectory(this.DEBUG_DefinitionTarget);
-            await RulesEngineService.RegisterYaraRules(rulesList);
+            var rulesList = rulesEngineService.LoadRulesFromDirectory(this.DEBUG_DefinitionTarget);
+            await rulesEngineService.RegisterYaraRules(rulesList);
 #endif      
         }
 
@@ -500,7 +503,7 @@ namespace ProjectScan
 
         private void DEBUG_DumpIt(object sender, RoutedEventArgs e)
         {
-            RulesEngineService.ClearDatabase();
+            rulesEngineService.ClearDatabase();
         }
 
         private void DEBUG_DefinitionFile_TextChanged(object sender, TextChangedEventArgs e)

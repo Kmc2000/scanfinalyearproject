@@ -6,19 +6,36 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using libyaraNET;
+using Microsoft.EntityFrameworkCore;
 using ProjectScan.Models;
 
 namespace ProjectScan.Services
 {
-    internal class YaraTelemetryService : IViralTelemetryService
+    public class YaraTelemetryService : IViralTelemetryService
     {
+        // db context
+        private MalwareScannerContext context { get; set; }
+
+        // default constructor using normal db context
+        public YaraTelemetryService()
+        {
+            context = new MalwareScannerContext();
+        }
+
+        // overloaded constructor for using custom db contexts for testing purposes
+        public YaraTelemetryService(MalwareScannerContext ctx)
+        {
+            this.context = ctx;
+        }
+
+
         /// <summary>
         /// Return the number of rules known to this heuristic.
         /// </summary>
         /// <returns></returns>
         public int GetRuleCount()
         {
-            return Directory.EnumerateFiles(Directory.GetCurrentDirectory().Replace("\\bin\\Debug\\net6.0-windows", "") + "\\Rules", "*.yar", SearchOption.AllDirectories).Count();
+            return context.KnownBadYaraRules.Count();
         }
 
         public ViralTelemetryResult Scan(string FileName, out ViralTelemetryErrorFlags flags, MainWindow src)
@@ -28,10 +45,9 @@ namespace ProjectScan.Services
             {
                 using (YaraContext ctx = new YaraContext())
                 using(Compiler compiler = new Compiler())
-                using (MalwareScannerContext dbContext = new MalwareScannerContext())
                 {
                       
-                    List<YaraRuleset> rulesList = dbContext.KnownBadYaraRules.ToList();
+                    List<YaraRuleset> rulesList = context.KnownBadYaraRules.ToList();
                     
                     foreach (YaraRuleset rule in rulesList)
                     {
