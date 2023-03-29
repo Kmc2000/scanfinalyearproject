@@ -99,7 +99,7 @@ namespace ProjectScan
 #endif
 
             }
-            
+
         }
 
         public enum FaultCode
@@ -182,21 +182,30 @@ namespace ProjectScan
             ViralTelemetryResult ScanningResult = ViralTelemetryResult.OkResult();
             //Reset execution count.
             IViralTelemetryService.ExecutionCount = 0;
+            int _i = 0;
             foreach (IViralTelemetryService detectionEngine in DetectionEngines)
             {
                 ScanningResult = detectionEngine.Scan(filepath, out ViralTelemetryErrorFlags flags, this);
+                Application.Current.Dispatcher.BeginInvoke(
+                DispatcherPriority.Normal,
+                () =>
+                {
+                    //Update
+                    Percentage.Text = $"{Num2Percentage(++_i, DetectionEngines.Count)}%";
+                });
                 if (ScanningResult.Categorisation != ViralTelemetryCategorisation.Negative)
                 {
                     break;
                 }
             }
+  
             Application.Current.Dispatcher.BeginInvoke(
-              DispatcherPriority.Background,
-              () =>
-              {
-                  SetResultsUI(ScanningResult);
-                  SetApplicationScreen(ApplicationScreenState.ScanComplete);
-              });
+                DispatcherPriority.Normal,
+                () =>
+                {
+                    SetResultsUI(ScanningResult);
+                    SetApplicationScreen(ApplicationScreenState.ScanComplete);
+                });
 
 
         }
@@ -369,13 +378,15 @@ namespace ProjectScan
 
         internal void RenderProgress()
         {
+#if HACK
             Application.Current.Dispatcher.BeginInvoke(
-            DispatcherPriority.Background,
+            DispatcherPriority.Normal,
             () =>
             {
                 //Update
                 Percentage.Text = $"{Num2Percentage(Volatile.Read(ref IViralTelemetryService.ExecutionCount), ScanningGoal)}%";
             });
+#endif
         }
 
 #if DEBUG
@@ -456,9 +467,11 @@ namespace ProjectScan
             }
             DEBUG_DefinitionFile.Background = ButtonDefaultColour;
             // Load rules from directory including subdirectories
+            
             var rulesList = rulesEngineService.LoadRulesFromDirectory(this.DEBUG_DefinitionTarget);
             await rulesEngineService.RegisterYaraRules(rulesList);
 #endif      
+
         }
 
         private void DEBUG_DefinitionFileTextChanged(object sender, RoutedEventArgs e)

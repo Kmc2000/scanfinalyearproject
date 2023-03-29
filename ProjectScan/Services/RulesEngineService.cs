@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ProjectScan.Services
 {
-#if DEBUG
+
     /// <summary>
     /// Internal rules engine for updating the database.
     /// This is, predictably, NOT present in production!
@@ -204,5 +204,4 @@ namespace ProjectScan.Services
             
         }
     }
-#endif
 }
