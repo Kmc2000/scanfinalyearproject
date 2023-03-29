@@ -18,16 +18,31 @@ namespace ProjectScan.Services
     /// If you leave any references to this interface hanging around in prod, it will break.
     /// For more information, please re-read.
     /// </summary>
-    internal static class RulesEngineService
+    public class RulesEngineService
     {
-        internal static void ClearDatabase()
+        // Database context
+        private MalwareScannerContext Context { get; set; }
+
+        // Default constructor
+        public RulesEngineService()
         {
-            using (MalwareScannerContext ctx = new())
-            {
-                //Dump the hashes table.
-                ctx.KnownBadHashes.RemoveRange(ctx.KnownBadHashes);
-                ctx.SaveChanges();
-            }
+            this.Context = new MalwareScannerContext();
+        }
+
+        // Overloaded constructor that allows specifying database context
+        public RulesEngineService(MalwareScannerContext context)
+        {
+            this.Context = context;
+        }
+
+        public void ClearDatabase()
+        {
+
+            //Dump the hashes table.
+            Context.KnownBadHashes.RemoveRange(Context.KnownBadHashes);
+            Context.KnownBadYaraRules.RemoveRange(Context.KnownBadYaraRules);
+            Context.SaveChanges();
+            
         }
 
         /// <summary>
@@ -38,7 +53,7 @@ namespace ProjectScan.Services
         /// <param name="filePath"></param>
 
         /// <exception cref="NotImplementedException"></exception>
-        internal static async void GenerateRules(string filePath)
+        internal async void GenerateRules(string filePath)
         {
             try
             {
@@ -80,20 +95,19 @@ namespace ProjectScan.Services
 
         }
 
-        internal static async Task RegisterBlock(List<KnownMalwareHash> Block)
+        public async Task RegisterBlock(List<KnownMalwareHash> Block)
         {
             if (Block == null)
             {
                 throw new InvalidOperationException();
             }
-            using (MalwareScannerContext ctx = new())
-            {
-                await ctx.KnownBadHashes.AddRangeAsync(Block);
-                await ctx.SaveChangesAsync();
-            }
+
+            await Context.KnownBadHashes.AddRangeAsync(Block);
+            await Context.SaveChangesAsync();
+
         }
 
-        internal static List<string> LoadRulesFromDirectory(string filePath)
+        internal List<string> LoadRulesFromDirectory(string filePath)
         {
             
             List<string> rules = new List<string>();
@@ -132,7 +146,7 @@ namespace ProjectScan.Services
         /// <param name="Hash">The hash of the sample file.</param>
         /// <param name="category">The categorisation of the sample. PUA, malware, etc.</param>
         /// <exception cref="InvalidOperationException"></exception>
-        internal static async void RegisterHash(byte[] Hash, ViralTelemetryCategorisation category)
+        internal async void RegisterHash(byte[] Hash, ViralTelemetryCategorisation category)
         {
             if (Hash == null || Hash.Length <= 0)
             {
@@ -143,11 +157,10 @@ namespace ProjectScan.Services
                 Categorisation = category,
                 MalwareHash=Hash
             };
-            using(MalwareScannerContext ctx = new())
-            {
-                ctx.KnownBadHashes.Add(ToInsert);
-                await ctx.SaveChangesAsync();
-            }
+
+            Context.KnownBadHashes.Add(ToInsert);
+            await Context.SaveChangesAsync();
+            
         }
 
         /// <summary>
@@ -155,7 +168,7 @@ namespace ProjectScan.Services
         /// </summary>
         /// <param name="rule">A string representation of a YARA rule.</param>
         /// <param name="category">The classification category assigned to the rule. PUA, malware, etc.</param>
-        internal static async Task RegisterYaraRules(List<string> rules)
+        internal async Task RegisterYaraRules(List<string> rules)
         {
             // Prevent empty rules being added to the database.
             if (rules == null || rules.Count == 0)
@@ -178,12 +191,9 @@ namespace ProjectScan.Services
            
             
             try
-            {
-                using (MalwareScannerContext context = new())
-                {               
-                    context.KnownBadYaraRules.AddRange(rulesList);
-                    await context.SaveChangesAsync();
-                }
+            {                             
+                Context.KnownBadYaraRules.AddRange(rulesList);
+                await Context.SaveChangesAsync();               
             }
             catch (Exception e) 
             {
